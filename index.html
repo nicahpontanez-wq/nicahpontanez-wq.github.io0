@@ -1,0 +1,526 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Birthday Gift Card</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #1e1e2e;
+      font-family: 'Press Start 2P', cursive;
+    }
+
+    /* Window Container */
+    .app-window {
+      width: 360px;
+      height: 380px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: background-color 0.4s ease;
+      position: relative;
+    }
+
+    /* Title Bar */
+    .title-bar {
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+      background: rgba(0,0,0,0.08);
+    }
+
+    .nav-btn {
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+      color: #ffffff;
+      text-shadow: 1px 1px 0px rgba(0,0,0,0.2);
+    }
+
+    .window-controls {
+      display: flex;
+      gap: 6px;
+    }
+
+    .control-btn {
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: bold;
+      color: white;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+
+    .btn-minimize { background-color: #5c9df5; }
+    .btn-close { background-color: #f55c7a; }
+
+    /* Screen Content */
+    .content-area {
+      flex: 1;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      text-align: center;
+    }
+
+    .message-text {
+      font-size: 11px;
+      line-height: 1.6;
+      color: #2b2b2b;
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      word-break: break-word;
+    }
+
+    .pixel-art {
+      margin: 10px 0;
+      animation: float 2s ease-in-out infinite;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      height: 150px;
+    }
+
+    .pixel-art svg {
+      shape-rendering: crispEdges;
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .action-btn {
+      font-family: 'Press Start 2P', cursive;
+      font-size: 10px;
+      padding: 8px 14px;
+      background-color: #ffffff;
+      border: 2px solid #2b2b2b;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 2px 2px 0px #2b2b2b;
+      transition: transform 0.1s;
+    }
+
+    .action-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 0px 0px 0px #2b2b2b;
+    }
+
+    /* Screen Theme Colors */
+    .theme-1 { background-color: #fceecb; }
+    .theme-2 { background-color: #ffb8ca; }
+    .theme-3 { background-color: #aae0fa; }
+    .theme-4 { background-color: #ffdca8; }
+    .theme-5 { background-color: #a3f3d2; }
+    .theme-6 { background-color: #bfb2f3; }
+  </style>
+</head>
+<body>
+
+<div class="app-window theme-1" id="appWindow">
+  <!-- Window Header -->
+  <div class="title-bar">
+    <span class="nav-btn" id="backBtn" style="visibility: hidden;">&#129144;</span>
+    <div class="window-controls">
+      <div class="control-btn btn-minimize">&#8722;</div>
+      <div class="control-btn btn-close">&#10005;</div>
+    </div>
+  </div>
+
+  <!-- Screen Content -->
+  <div class="content-area">
+    <div class="message-text" id="typewriterText"></div>
+    <div class="pixel-art" id="artContainer"></div>
+    <div id="buttonContainer"></div>
+  </div>
+</div>
+
+<script>
+  // High-fidelity Pixel Art SVG Assets accurately recreated from video frames
+  const SVG_ASSETS = {
+    // Screen 0: Yellow Chick / Bird + Green Frog Friend in Corner
+    chick: `<svg width="220" height="150" viewBox="0 0 48 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Top Left Small Green Frog (Sumikko style) -->
+      <path d="M2 4h6v6H2z" fill="#A8E063"/>
+      <path d="M3 3h2v1H3zM6 3h2v1H6z" fill="#A8E063"/>
+      <rect x="3" y="6" width="1" height="1" fill="#2B2B2B"/>
+      <rect x="6" y="6" width="1" height="1" fill="#2B2B2B"/>
+      <rect x="2" y="4" width="6" height="6" stroke="#2B2B2B" stroke-width="0.5" fill="none"/>
+
+      <!-- Main Chick -->
+      <!-- Body -->
+      <path d="M24 10h14v12H24z" fill="#FFE366"/>
+      <path d="M22 13h18v7H22z" fill="#FFE366"/>
+      <path d="M21 12h20v9H21z" fill="#FFE366"/>
+      <!-- Outline -->
+      <path d="M24 10h14v1H24zM22 13h2v-1h-2zM38 12h2v1h-2zM21 13h1v8h-1zM41 13h1v8h-1zM22 21h2v1h-2zM38 21h2v1h-2zM24 22h14v1H24z" fill="#2B2B2B"/>
+      <!-- Cheek Blush -->
+      <rect x="23" y="17" width="3" height="2" fill="#FF8A8A"/>
+      <rect x="36" y="17" width="3" height="2" fill="#FF8A8A"/>
+      <!-- Eyes -->
+      <rect x="27" y="15" width="2" height="2" fill="#2B2B2B"/>
+      <rect x="33" y="15" width="2" height="2" fill="#2B2B2B"/>
+      <!-- Beak -->
+      <rect x="29" y="17" width="4" height="2" fill="#FF9800"/>
+      <rect x="29" y="17" width="4" height="2" stroke="#2B2B2B" stroke-width="0.5" fill="none"/>
+      <!-- Feet -->
+      <path d="M26 23h3v2h-3zM33 23h3v2h-3z" fill="#FF9800"/>
+      <path d="M26 23h3v2h-3zM33 23h3v2h-3z" stroke="#2B2B2B" stroke-width="0.5" fill="none"/>
+    </svg>`,
+
+    // Screen 1: Brown & White Pixel Cat
+    cat: `<svg width="160" height="130" viewBox="0 0 32 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Ears -->
+      <path d="M8 6h4v4H8zM20 6h4v4h-4z" fill="#A0522D"/>
+      <path d="M9 7h2v2H9zM21 7h2v2h-2z" fill="#FFB6C1"/>
+      <!-- Head -->
+      <path d="M6 10h20v11H6z" fill="#FFFFFF"/>
+      <!-- Brown Patch on Head -->
+      <path d="M11 10h10v4H11z" fill="#A0522D"/>
+      <!-- Eyes -->
+      <rect x="9" y="14" width="2" height="3" fill="#2B2B2B"/>
+      <rect x="21" y="14" width="2" height="3" fill="#2B2B2B"/>
+      <!-- Nose / Mouth -->
+      <rect x="15" y="16" width="2" height="1" fill="#FF8A8A"/>
+      <path d="M14 17h4v1h-4z" fill="#2B2B2B"/>
+      <!-- Blushes -->
+      <rect x="7" y="16" width="3" height="2" fill="#FF8A8A"/>
+      <rect x="22" y="16" width="3" height="2" fill="#FF8A8A"/>
+      <!-- Outline -->
+      <path d="M8 6h4v1H8zM20 6h4v1h-4zM7 7h1v3H7zM24 7h1v3h-1zM6 10h1v11H6zM25 10h1v11h-1zM7 21h18v1H7z" fill="#2B2B2B"/>
+    </svg>`,
+
+    // Screen 2: Opened Gift Box with Ribbons
+    giftOpened: `<svg width="180" height="140" viewBox="0 0 36 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Bottom Box -->
+      <path d="M8 12h20v12H8z" fill="color:lightblue"/>
+      <path d="M16 12h4v12h-4z" fill="#FF4081"/>
+      <path d="M8 12h20v12H8z" stroke="#2B2B2B" stroke-width="1" fill="none"/>
+      <!-- Open Lid Left -->
+      <path d="M4 7h13v5H4z" fill="#FF4081" transform="rotate(-15 4 7)"/>
+      <!-- Open Lid Right -->
+      <path d="M19 4h13v5H19z" fill="#FF4081" transform="rotate(15 19 4)"/>
+      <!-- Ribbon Knots -->
+      <circle cx="18" cy="8" r="3" fill="#FF4081" stroke="#2B2B2B" stroke-width="0.8"/>
+    </svg>`,
+
+    // Screen 3: Cinnamoroll Bunny with Heart, Cake & Balloons
+    bunnyParty: `<svg width="240" height="150" viewBox="0 0 48 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Left Balloons -->
+      <path d="M3 4h5v7H3z" fill="#FF5252"/>
+      <path d="M3 4h5v7H3z" stroke="#2B2B2B" stroke-width="0.8" fill="none"/>
+      <path d="M1 8h2v5H1z" fill="#E040FB"/>
+      <path d="M1 8h2v5H1z" stroke="#2B2B2B" stroke-width="0.8" fill="none"/>
+      <path d="M5 11v8" stroke="#2B2B2B" stroke-width="0.8"/>
+      
+      <!-- Right Balloons -->
+      <path d="M40 4h5v7h-5z" fill="#69F0AE"/>
+      <path d="M40 4h5v7h-5z" stroke="#2B2B2B" stroke-width="0.8" fill="none"/>
+      <path d="M44 8h2v5h-2z" fill="#FFD700"/>
+      <path d="M44 8h2v5h-2z" stroke="#2B2B2B" stroke-width="0.8" fill="none"/>
+      <path d="M42 11v8" stroke="#2B2B2B" stroke-width="0.8"/>
+
+      <!-- Cinnamoroll Center -->
+      <!-- Ears -->
+      <path d="M10 8h7v4h-7zM31 8h7v4h-7z" fill="#FFFFFF"/>
+      <path d="M10 8h7v4h-7zM31 8h7v4h-7z" stroke="#00BCD4" stroke-width="0.8" fill="none"/>
+      <!-- Head -->
+      <path d="M16 6h16v9H16z" fill="#FFFFFF"/>
+      <path d="M16 6h16v9H16z" stroke="#00BCD4" stroke-width="0.8" fill="none"/>
+      <!-- Eyes -->
+      <rect x="20" y="9" width="2" height="3" fill="#00BCD4"/>
+      <rect x="26" y="9" width="2" height="3" fill="#00BCD4"/>
+      <!-- Heart in Hands -->
+      <path d="M22 12h4v4h-4z" fill="#FF4081"/>
+
+      <!-- Cake at Bottom -->
+      <path d="M20 20h8v6h-8z" fill="#FF8A8A"/>
+      <path d="M20 20h8v2h-8z" fill="#FFFFFF"/>
+      <rect x="23" y="18" width="2" height="2" fill="#FFD700"/>
+      <rect x="23" y="17" width="2" height="1" fill="#FF5252"/>
+      <path d="M20 20h8v6h-8z" stroke="#2B2B2B" stroke-width="0.8" fill="none"/>
+    </svg>`,
+
+    // Screen 4: Real Snoopy holding Sunflower (Exact Video Match)
+    snoopyFlower: `<svg width="180" height="150" viewBox="0 0 36 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Sunflower -->
+      <circle cx="10" cy="12" r="3.5" fill="#5D4037"/>
+      <!-- Sunflower Petals -->
+      <path d="M10 5h2v3.5h-2zM10 15.5h2v3.5h-2zM3.5 11h3.5v2H3.5zM14 11h3.5v2H14zM5.5 7l2.5 2.5L7 10.5 4.5 8zM14.5 16l2.5 2.5-1 1-2.5-2.5zM14.5 8L12 10.5l1 1 2.5-2.5zM5.5 17L8 14.5l1 1L6.5 18z" fill="#FFCA28"/>
+      <!-- Stem and Leaf -->
+      <path d="M10 15.5v11" stroke="#4CAF50" stroke-width="1.5"/>
+      <path d="M10 20c-2 0-4-1-4-2s2-1 4 2z" fill="#4CAF50"/>
+
+      <!-- Snoopy Figure -->
+      <!-- Head -->
+      <path d="M18 5c3 0 7 1 8 4s-1 5-4 5h-4V5z" fill="#FFFFFF"/>
+      <!-- Snoopy Ear -->
+      <path d="M17 6c-1 0-2 2-2 4s1 3 2 3 1-2 1-4-1-3-1-3z" fill="#2B2B2B"/>
+      <!-- Snoopy Eye & Nose -->
+      <circle cx="21" cy="8" r="0.8" fill="#2B2B2B"/>
+      <ellipse cx="26" cy="9" rx="1.2" ry="1" fill="#2B2B2B"/>
+      <!-- Snoopy Collar -->
+      <rect x="18" y="14" width="4" height="1" fill="#FF2323"/>
+      <!-- Snoopy Body -->
+      <path d="M17 15h6v8h-6z" fill="#FFFFFF"/>
+      <!-- Arms holding stem -->
+      <path d="M15 17h4v2h-4z" fill="#FFFFFF"/>
+      <path d="M15 17h4v2h-4z" stroke="#2B2B2B" stroke-width="0.5" fill="none"/>
+      <!-- Legs -->
+      <path d="M17 23h2v3h-2zM21 23h3v3h-3z" fill="#FFFFFF"/>
+      <!-- Outlines -->
+      <path d="M18 5c3 0 7 1 8 4s-1 5-4 5h-5V5zM17 15h6v8h-6zM17 23h2v3h-2zM21 23h3v3h-3z" stroke="#2B2B2B" stroke-width="0.8" fill="none"/>
+    </svg>`,
+
+    // Screen 5: Present Box 2
+    presentBox: `<svg width="160" height="140" viewBox="0 0 32 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M6 8h20v16H6z" fill="color:pink"/>
+      <rect x="14" y="8" width="4" height="16" fill="#FF4081"/>
+      <rect x="6" y="14" width="20" height="4" fill="#FF4081"/>
+      <!-- Bow -->
+      <path d="M11 4c0 0 2.5 0 5 4c2.5-4 5-4 5-4s0 4-5 4c-5 0-5-4-5-4z" fill="#FF4081"/>
+      <path d="M6 8h20v16H6z" stroke="#2B2B2B" stroke-width="1" fill="none"/>
+    </svg>`,
+
+    // Screen 6: Kuromi with Party Party Party Poppers (Exact Video Match)
+    kuromiParty: `<svg width="220" height="150" viewBox="0 0 44 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Left Party Popper Cone -->
+      <path d="M2 10l8 6H2z" fill="#FF9800"/>
+      <path d="M2 10l8 6H2z" stroke="#2B2B2B" stroke-width="0.8" fill="none"/>
+      <!-- Left Confetti Streams -->
+      <path d="M10 12l4-3M10 14l5 1M10 16l3 4" stroke="#FF4081" stroke-width="1"/>
+
+      <!-- Right Party Popper Cone -->
+      <path d="M42 10l-8 6h8z" fill="#FF9800"/>
+      <path d="M42 10l-8 6h8z" stroke="#2B2B2B" stroke-width="0.8" fill="none"/>
+      <!-- Right Confetti Streams -->
+      <path d="M34 12l-4-3M34 14l-5 1M34 16l-3 4" stroke="#00E676" stroke-width="1"/>
+
+      <!-- Kuromi Center -->
+      <!-- Jester Hat / Ears -->
+      <path d="M14 6l4 7h8l4-7v8H14z" fill="#2B2B2B"/>
+      <circle cx="14" cy="6" r="1.5" fill="#FF4081"/>
+      <circle cx="30" cy="6" r="1.5" fill="#FF4081"/>
+      <!-- Pink Skull on Hat -->
+      <rect x="21" y="8" width="2" height="2" fill="#FF4081"/>
+      <!-- Head -->
+      <path d="M15 12h14v10H15z" fill="#FFFFFF"/>
+      <path d="M15 12h14v10H15z" stroke="#2B2B2B" stroke-width="0.8" fill="none"/>
+      <!-- Heart Eyes -->
+      <path d="M17 15h2v2h-2zM25 15h2v2h-2z" fill="#FF4081"/>
+      <!-- Cute Mouth -->
+      <path d="M21 18h2v1h-2z" fill="#2B2B2B"/>
+      <!-- Holding Pink Heart -->
+      <path d="M24 20h4v4h-4z" fill="#FF4081"/>
+    </svg>`,
+
+    // Screen 7: Keroppi Frog & Pink Bunny Costumed Characters (Exact Video Match)
+    friends: `<svg width="240" height="150" viewBox="0 0 48 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Left Character: Keroppi Costume -->
+      <!-- Frog Hood Eyes -->
+      <circle cx="10" cy="7" r="3" fill="#FFFFFF" stroke="#2B2B2B" stroke-width="0.8"/>
+      <circle cx="16" cy="7" r="3" fill="#FFFFFF" stroke="#2B2B2B" stroke-width="0.8"/>
+      <circle cx="10" cy="7" r="1" fill="#2B2B2B"/>
+      <circle cx="16" cy="7" r="1" fill="#2B2B2B"/>
+      <!-- Green Hood & Body -->
+      <path d="M7 9h12v14H7z" fill="#8BC34A"/>
+      <path d="M7 9h12v14H7z" stroke="#2B2B2B" stroke-width="0.8" fill="none"/>
+      <!-- Face cutout -->
+      <path d="M9 11h8v7H9z" fill="#FFFFFF"/>
+      <rect x="11" y="13" width="1" height="2" fill="#2B2B2B"/>
+      <rect x="14" y="13" width="1" height="2" fill="#2B2B2B"/>
+      <path d="M11 16h4v1h-4z" fill="#FF8A8A"/>
+
+      <!-- Right Character: Pink Bunny Costume -->
+      <!-- Bunny Ears -->
+      <path d="M30 4h3v5h-3zM35 4h3v5h-3z" fill="#FF8A8A" stroke="#2B2B2B" stroke-width="0.8"/>
+      <!-- Pink Hood & Body -->
+      <path d="M29 8h12v15H29z" fill="#FF8A8A"/>
+      <path d="M29 8h12v15H29z" stroke="#2B2B2B" stroke-width="0.8" fill="none"/>
+      <!-- Face cutout -->
+      <path d="M31 11h8v7h-8z" fill="#FFFFFF"/>
+      <rect x="33" y="13" width="1" height="2" fill="#2B2B2B"/>
+      <rect x="36" y="13" width="1" height="2" fill="#2B2B2B"/>
+      <polygon points="34.5,15.5 35.5,15.5 35,16.5" fill="#FF9800"/>
+    </svg>`
+  };
+
+  // Sequence of screens matching the video
+  const screens = [
+    {
+      theme: "theme-1",
+      text: "There is a secret message...",
+      art: SVG_ASSETS.chick,
+      hasBack: false,
+      btnText: null,
+      autoNext: false
+    },
+    {
+      theme: "theme-2",
+      text: "You have a GIFT !",
+      art: SVG_ASSETS.cat,
+      hasBack: true,
+      btnText: "open gift ?",
+      nextOnClick: 2
+    },
+    {
+      theme: "theme-2",
+      text: "opening gift...",
+      art: SVG_ASSETS.giftOpened,
+      hasBack: true,
+      btnText: null,
+      autoNextDelay: 1800,
+      nextScreen: 3
+    },
+    {
+      theme: "theme-3",
+      text: "happy birthday ate Kaira!",
+      art: SVG_ASSETS.bunnyParty,
+      hasBack: true,
+      btnText: "next...",
+      nextOnClick: 4
+    },
+    {
+      theme: "theme-4",
+      text: "huh? what's this ? looks like snoopy has a message !",
+      art: SVG_ASSETS.snoopyFlower,
+      hasBack: true,
+      btnText: null,
+      autoNextDelay: 2500,
+      nextScreen: 5
+    },
+    {
+      theme: "theme-4",
+      text: "hmm... it seems like you have a gift again",
+      art: SVG_ASSETS.presentBox,
+      hasBack: true,
+      btnText: "open gift ?",
+      nextOnClick: 6
+    },
+    {
+      theme: "theme-5",
+      text: "For the second time, happy birthday ate kaira!",
+      art: SVG_ASSETS.kuromiParty,
+      hasBack: true,
+      btnText: "next...",
+      nextOnClick: 7
+    },
+    {
+      theme: "theme-6",
+      text: "From me... to you, ate kaira. So proud to know you and to be your friend. I hope you have a great year ahead, filled with love, laughter, and all the things that make you happy. You deserve it all! Keep shining bright.",
+      art: SVG_ASSETS.friends,
+      hasBack: true,
+      btnText: null
+    }
+  ];
+
+  let currentStep = 0;
+  let typingTimer = null;
+
+  const appWindow = document.getElementById("appWindow");
+  const typewriterText = document.getElementById("typewriterText");
+  const artContainer = document.getElementById("artContainer");
+  const buttonContainer = document.getElementById("buttonContainer");
+  const backBtn = document.getElementById("backBtn");
+
+  function typeWriter(text, i = 0, callback = null) {
+    if (i === 0) typewriterText.innerHTML = "";
+    if (i < text.length) {
+      typewriterText.innerHTML += text.charAt(i);
+      typingTimer = setTimeout(() => typeWriter(text, i + 1, callback), 40);
+    } else if (callback) {
+      callback();
+    }
+  }
+
+  function renderScreen(index) {
+    clearTimeout(typingTimer);
+    const data = screens[index];
+
+    // Background theme update
+    appWindow.className = `app-window ${data.theme}`;
+
+    // Header controls
+    backBtn.style.visibility = data.hasBack ? "visible" : "hidden";
+
+    // Graphic
+    artContainer.innerHTML = data.art;
+
+    // Clear buttons
+    buttonContainer.innerHTML = "";
+
+    // Typewriter Text Effect
+    typeWriter(data.text, 0, () => {
+      // Show action button if required
+      if (data.btnText) {
+        const btn = document.createElement("button");
+        btn.className = "action-btn";
+        btn.innerText = data.btnText;
+        btn.onclick = () => {
+          if (data.nextOnClick !== undefined) {
+            currentStep = data.nextOnClick;
+            renderScreen(currentStep);
+          }
+        };
+        buttonContainer.appendChild(btn);
+      }
+
+      // Auto progression after text finishes
+      if (data.autoNextDelay) {
+        setTimeout(() => {
+          currentStep = data.nextScreen;
+          renderScreen(currentStep);
+        }, data.autoNextDelay);
+      }
+    });
+  }
+
+  // Back button functionality
+  backBtn.onclick = () => {
+    if (currentStep > 0) {
+      currentStep--;
+      renderScreen(currentStep);
+    }
+  };
+
+  // Initial load auto-trigger (Screen 0 -> Screen 1 after short delay)
+  renderScreen(0);
+  setTimeout(() => {
+    if (currentStep === 0) {
+      currentStep = 1;
+      renderScreen(1);
+    }
+  }, 2200);
+</script>
+</body>
+</html>
+
